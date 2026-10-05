@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.idea/
+*.iml
+.pytest_cache/
+*.log
+*.tmp
+.DS_Store
+vfs/*.zip
