@@ -1,0 +1,13 @@
+# Этап 4: основные команды варианта 6
+ls
+cd level1
+ls
+cat notes.txt
+cd level2/level3
+cat deep.txt
+cd /
+tree
+whoami
+ls no_such_dir
+cat no_such_file.txt
+exit

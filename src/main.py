@@ -13,6 +13,9 @@ from .vfs import VFS, VFSLoadError
 HANDLERS = {
     "ls": commands.cmd_ls,
     "cd": commands.cmd_cd,
+    "cat": commands.cmd_cat,
+    "tree": commands.cmd_tree,
+    "whoami": commands.cmd_whoami,
     "exit": commands.cmd_exit,
 }
 

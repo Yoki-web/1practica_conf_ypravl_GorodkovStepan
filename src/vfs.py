@@ -84,3 +84,65 @@ class VFS:
         if not normalized.startswith("/"):
             normalized = "/" + normalized
         return normalized
+
+    def is_directory(self, path: str) -> bool:
+        """Проверяет, является ли путь каталогом VFS."""
+        target = self.normalize(path, self.cwd)
+        return target in self.directories
+
+    def list_directory(self, path: str = ".") -> list[str]:
+        """Возвращает непосредственное содержимое каталога."""
+        base = self.normalize(path, self.cwd)
+        if base not in self.directories:
+            raise FileNotFoundError(base)
+        prefix = "/" if base == "/" else base + "/"
+        result = set()
+        all_paths = self.directories | set(self.files)
+        for item in all_paths:
+            if item == base or not item.startswith(prefix):
+                continue
+            rest = item[len(prefix):]
+            if rest:
+                result.add(rest.split("/", 1)[0])
+        return sorted(result)
+
+    def read_file(self, path: str) -> str:
+        """Читает виртуальный файл из памяти."""
+        target = self.normalize(path, self.cwd)
+        if target not in self.files:
+            raise FileNotFoundError(target)
+        stored = self.files[target]
+        if stored.encoding == "base64":
+            return f"[base64] {stored.data}"
+        return stored.data
+
+    def tree_lines(self, path: str = ".") -> list[str]:
+        """Строит строки дерева для выбранного каталога."""
+        base = self.normalize(path, self.cwd)
+        if base not in self.directories:
+            raise FileNotFoundError(base)
+        lines = [base]
+        self._walk_tree(base, "", lines)
+        return lines
+
+    def _walk_tree(self, base: str, prefix: str, lines: list[str]) -> None:
+        """Рекурсивно добавляет элементы каталога в дерево."""
+        children = self._children_for(base)
+        last_index = len(children) - 1
+        for index, name in enumerate(children):
+            is_last = index == last_index
+            branch = "└── " if is_last else "├── "
+            lines.append(prefix + branch + name)
+            child = self.normalize(name, base)
+            if child in self.directories:
+                extra = "    " if is_last else "│   "
+                self._walk_tree(child, prefix + extra, lines)
+
+    def _children_for(self, base: str) -> list[str]:
+        """Возвращает детей абсолютного каталога."""
+        old_cwd = self.cwd
+        try:
+            self.cwd = base
+            return self.list_directory(".")
+        finally:
+            self.cwd = old_cwd
