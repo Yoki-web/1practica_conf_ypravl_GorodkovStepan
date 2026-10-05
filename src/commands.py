@@ -5,6 +5,10 @@ import getpass
 from .vfs import VFS
 
 
+ONE_ARGUMENT = 1
+TWO_ARGUMENTS = 2
+
+
 class CommandError(Exception):
     """Ошибка выполнения команды."""
 
@@ -38,7 +42,7 @@ def cmd_cd(vfs: VFS, args: list[str]) -> str:
 
 def cmd_cat(vfs: VFS, args: list[str]) -> str:
     """Показывает содержимое виртуального файла."""
-    if len(args) != 1:
+    if len(args) != ONE_ARGUMENT:
         raise CommandError("неверные аргументы. Формат: cat файл")
     try:
         return vfs.read_file(args[0]).rstrip("\n")
@@ -65,7 +69,7 @@ def cmd_whoami(vfs: VFS, args: list[str]) -> str:
 
 def cmd_mv(vfs: VFS, args: list[str]) -> str:
     """Перемещает или переименовывает объект VFS в памяти."""
-    if len(args) != 2:
+    if len(args) != TWO_ARGUMENTS:
         raise CommandError(
             "неверные аргументы. Формат: mv источник назначение"
         )
