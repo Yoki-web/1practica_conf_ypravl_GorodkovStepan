@@ -7,7 +7,7 @@ from tkinter import scrolledtext
 
 from . import commands
 from .parser import ParseError, parse
-from .vfs import VFS
+from .vfs import VFS, VFSLoadError
 
 
 HANDLERS = {
@@ -104,11 +104,25 @@ class ShellEmulator:
                 break
 
 
+def load_vfs(path: str | None) -> VFS:
+    """Создает пустую VFS или загружает ее из ZIP."""
+    vfs = VFS()
+    if not path:
+        return vfs
+    vfs.load_from_zip(path)
+    return vfs
+
+
 def main() -> None:
-    """Запускает GUI с параметрами конфигурации."""
+    """Запускает GUI и при необходимости загружает ZIP VFS."""
     args = parse_args()
+    try:
+        vfs = load_vfs(args.vfs)
+    except VFSLoadError as exc:
+        print(f"Ошибка загрузки VFS: {exc}")
+        raise SystemExit(1) from exc
     root = tk.Tk()
-    app = ShellEmulator(root, VFS(), args)
+    app = ShellEmulator(root, vfs, args)
     root.after(0, app.run_startup_script)
     root.mainloop()
 

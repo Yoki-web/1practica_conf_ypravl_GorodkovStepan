@@ -1,0 +1,6 @@
+# Этап 3: проверка VFS и старых команд
+ls
+cd "level1"
+ls
+unknown_command
+exit
