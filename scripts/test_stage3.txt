@@ -1,6 +1,8 @@
-# Этап 3: проверка VFS и старых команд
+# Этап 3: VFS + функции прошлых этапов
 ls
-cd "level1"
+cd level1
 ls
 unknown_command
+cd "broken
+exit extra
 exit
