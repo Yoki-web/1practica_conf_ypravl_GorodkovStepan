@@ -16,6 +16,7 @@ HANDLERS = {
     "cat": commands.cmd_cat,
     "tree": commands.cmd_tree,
     "whoami": commands.cmd_whoami,
+    "mv": commands.cmd_mv,
     "exit": commands.cmd_exit,
 }
 

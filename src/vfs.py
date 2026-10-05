@@ -146,3 +146,63 @@ class VFS:
             return self.list_directory(".")
         finally:
             self.cwd = old_cwd
+
+    def move(self, source: str, destination: str) -> None:
+        """Перемещает файл или каталог только в памяти."""
+        src = self.normalize(source, self.cwd)
+        dst = self.normalize(destination, self.cwd)
+        if src in self.files:
+            self._move_file(src, dst)
+            return
+        if src in self.directories and src != "/":
+            self._move_directory(src, dst)
+            return
+        raise FileNotFoundError(src)
+
+    def _move_file(self, source: str, destination: str) -> None:
+        """Перемещает или переименовывает один виртуальный файл."""
+        if destination in self.directories:
+            name = posixpath.basename(source)
+            destination = self.normalize(name, destination)
+        self._add_parents(destination)
+        self.files[destination] = self.files.pop(source)
+
+    def _move_directory(self, source: str, destination: str) -> None:
+        """Перемещает каталог и все его дочерние элементы."""
+        if destination in self.directories:
+            name = posixpath.basename(source)
+            destination = self.normalize(name, destination)
+        dir_changes = self._directory_changes(source, destination)
+        file_changes = self._file_changes(source, destination)
+        for old, new in dir_changes.items():
+            self.directories.discard(old)
+            self.directories.add(new)
+        for old, new in file_changes.items():
+            self.files[new] = self.files.pop(old)
+        self._add_parents(destination)
+        if self.cwd == source or self.cwd.startswith(source + "/"):
+            self.cwd = destination + self.cwd[len(source):]
+
+    def _directory_changes(
+        self,
+        source: str,
+        destination: str,
+    ) -> dict[str, str]:
+        """Строит новые пути каталогов после mv."""
+        changes = {}
+        for path in list(self.directories):
+            if path == source or path.startswith(source + "/"):
+                changes[path] = destination + path[len(source):]
+        return changes
+
+    def _file_changes(
+        self,
+        source: str,
+        destination: str,
+    ) -> dict[str, str]:
+        """Строит новые пути файлов после mv каталога."""
+        changes = {}
+        for path in list(self.files):
+            if path.startswith(source + "/"):
+                changes[path] = destination + path[len(source):]
+        return changes

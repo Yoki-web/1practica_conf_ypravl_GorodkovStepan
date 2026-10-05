@@ -1,0 +1,13 @@
+# Этап 5: команда mv
+ls
+mv root.txt renamed.txt
+ls
+cat renamed.txt
+mv renamed.txt level1
+ls
+ls level1
+mv level1 level1_new
+ls
+ls level1_new
+mv no_such_file nowhere
+exit

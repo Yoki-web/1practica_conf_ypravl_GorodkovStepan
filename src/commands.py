@@ -63,6 +63,19 @@ def cmd_whoami(vfs: VFS, args: list[str]) -> str:
     return getpass.getuser()
 
 
+def cmd_mv(vfs: VFS, args: list[str]) -> str:
+    """Перемещает или переименовывает объект VFS в памяти."""
+    if len(args) != 2:
+        raise CommandError(
+            "неверные аргументы. Формат: mv источник назначение"
+        )
+    try:
+        vfs.move(args[0], args[1])
+    except FileNotFoundError as exc:
+        raise CommandError(f"mv: источник не найден: {args[0]}") from exc
+    return ""
+
+
 def cmd_exit(vfs: VFS, args: list[str]) -> str:
     """Завершает работу приложения."""
     if args:
